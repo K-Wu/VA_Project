@@ -77,6 +77,7 @@ def test(video_loader, audio_loader, model, opt):
                     afeat_var = afeat_var.cuda()
 
                 cur_sim = model(vfeat_var, afeat_var)
+                print(cur_sim)
                 if k == 0:
                     simmat = cur_sim.clone()
                 else:
@@ -100,7 +101,7 @@ def main():
                                      shuffle=False, num_workers=int(opt.workers))
 
     # create model
-    model = models.VAMetric2()
+    model = models.LSTMFastForwardVMetric2()
 
     if opt.init_model != '':
         print('loading pretrained model from {0}'.format(opt.init_model))

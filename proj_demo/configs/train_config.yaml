@@ -1,9 +1,9 @@
 cuda: False
-ngpu: 1
+ngpu: 0
 gpu_id: '0'
-data_dir: /data/datasets/yt8m/Train         # replace it as your data path
+data_dir: './datasets/yt8m/Train'         # replace it as your data path
 flist: './filelists/train_filelist.txt'
-workers: 4
+workers: 8
 batchSize: 64
 manualSeed: 
 adam: True
@@ -16,7 +16,7 @@ max_epochs: 300
 print_freq: 15
 epoch_save: 10
 checkpoint_folder: ./checkpoints
-prefix: 'VA_METRIC'
+prefix: 'LSTM_ATTENTION'
 model: ''
 gradient_clip: 0.01
 init_model: ''

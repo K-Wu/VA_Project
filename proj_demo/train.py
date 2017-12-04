@@ -101,6 +101,7 @@ def train(train_loader, model, criterion, optimizer, epoch, opt):
         # concat the labels together
         target = torch.cat((target2, target1), 0)
         target = 1 - target
+        #target 1为负样本
 
         # transpose the feats
         vfeat0 = vfeat0.transpose(2, 1)
@@ -155,14 +156,15 @@ def main():
                                      shuffle=True, num_workers=int(opt.workers))
 
     # create model
-    model = models.VAMetric2()
+    model = models.LSTMFastForwardVMetric2()
 
     if opt.init_model != '':
         print('loading pretrained model from {0}'.format(opt.init_model))
         model.load_state_dict(torch.load(opt.init_model))
 
     # Contrastive Loss
-    criterion = models.ContrastiveLoss()
+    criterion = models.MyCrossEntropyLoss()
+    #criterion=torch.nn.CrossEntropyLoss()
 
     if opt.cuda:
         print('shift model and criterion to GPU .. ')
