@@ -101,6 +101,7 @@ def train(train_loader, model, criterion, optimizer, epoch, opt):
         # concat the labels together
         target = torch.cat((target2, target1), 0)
         target = 1 - target
+        #print(target)
         #target 1为负样本
 
         # transpose the feats
@@ -120,8 +121,13 @@ def train(train_loader, model, criterion, optimizer, epoch, opt):
 
         # forward, backward optimize
         sim = model(vfeat_var, afeat_var)   # inference simialrity
+        # if opt.cuda:
+        #     target_var_long=target_var.type(torch.cuda.LongTensor)
+        #
+        # else:
+        #     target_var_long=target_var.type(torch.LongTensor)
         loss = criterion(sim, target_var)   # compute contrastive loss
-
+#        loss += models.regularization_loss(model)
         ##############################
         # update loss in the loss meter
         ##############################
@@ -156,7 +162,7 @@ def main():
                                      shuffle=True, num_workers=int(opt.workers))
 
     # create model
-    model = models.LSTMFastForwardVMetric2()
+    model = models.DeepCNN()
 
     if opt.init_model != '':
         print('loading pretrained model from {0}'.format(opt.init_model))
@@ -172,20 +178,20 @@ def main():
         criterion = criterion.cuda()
 
     # optimizer
-    optimizer = optim.SGD(model.parameters(), opt.lr,
-                                momentum=opt.momentum,
+    optimizer = optim.Adam(model.parameters(), opt.lr,
+                                #momentum=opt.momentum,
                                 weight_decay=opt.weight_decay)
 
     # adjust learning rate every lr_decay_epoch
-    lambda_lr = lambda epoch: opt.lr_decay ** ((epoch + 1) // opt.lr_decay_epoch)   #poly policy
-    scheduler = LR_Policy(optimizer, lambda_lr)
+    #lambda_lr = lambda epoch: opt.lr_decay ** ((epoch + 1) // opt.lr_decay_epoch)   #poly policy
+    #scheduler = LR_Policy(optimizer, lambda_lr)
 
     for epoch in range(opt.max_epochs):
     	#################################
         # train for one epoch
         #################################
         train(train_loader, model, criterion, optimizer, epoch, opt)
-        scheduler.step()
+        #scheduler.step()
 
         ##################################
         # save checkpoint every 10 epochs

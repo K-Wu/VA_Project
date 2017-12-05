@@ -101,7 +101,7 @@ def main():
                                      shuffle=False, num_workers=int(opt.workers))
 
     # create model
-    model = models.LSTMFastForwardVMetric2()
+    model = models.DeepCNN()
 
     if opt.init_model != '':
         print('loading pretrained model from {0}'.format(opt.init_model))
