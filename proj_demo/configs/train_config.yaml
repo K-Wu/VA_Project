@@ -14,7 +14,7 @@ momentum: 0.9
 weight_decay: 0.0001
 max_epochs: 300
 print_freq: 15
-epoch_save: 10
+epoch_save: 1
 checkpoint_folder: ./checkpoints
 prefix: 'LSTM_ATTENTION'
 model: ''

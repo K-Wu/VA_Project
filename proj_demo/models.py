@@ -206,8 +206,8 @@ class CANE(nn.Module):
 
 class InterestingCNN(nn.Module):
     def __init__(self, framenum=120):
-        #vfeat输入128x1024x120
-        #afeat输入128x128x120
+        #vfeat 128x1024x120
+        #afeat 128x128x120
         super(InterestingCNN, self).__init__()
         self.mp = nn.MaxPool1d(framenum)
         self.vfc = nn.Linear(1024, 128)
@@ -271,22 +271,24 @@ class InterestingCNN(nn.Module):
 
 class DeepCNN(nn.Module):
     def __init__(self, framenum=120):
-        #vfeat输入128x1024x120
-        #afeat输入128x128x120
+        #vfeat 128x1024x120
+        #afeat 128x128x120
         super(DeepCNN, self).__init__()
         self.mp = nn.MaxPool1d(framenum)
         self.vfc = nn.Linear(1024, 128)
-        self.vconv1a = nn.Conv2d(1,64,(1152,5),padding=(0,2))
-        self.vconv1b = nn.Conv2d(1,64,(1152,7),padding=(0,3))
-        self.vconv1c = nn.Conv2d(1,64,(1152,9),padding=(0,4))
-        self.vconv1d = nn.Conv2d(1,64,(1152,11),padding=(0,5))
+        self.vconv1a = nn.Conv2d(1,64,(1152,13),padding=(0,2))
+        self.vconv1b = nn.Conv2d(1,64,(1152,15),padding=(0,3))
+        self.vconv1c = nn.Conv2d(1,64,(1152,17),padding=(0,4))
+        self.vconv1d = nn.Conv2d(1,64,(1152,19),padding=(0,5))
 
         self.vconv2 = nn.Conv2d(1,256,(256,3),padding=(0,1))
         self.vconv3 = nn.Conv2d(1,128,(256,3),padding=(0,1))
         self.vconv4 = nn.Conv2d(1,64,(128,3),padding=(0,1))
-
+        
+        self.vconv5 = nn.Conv2d(1,32,(64,3),padding=(0,1))
+        #self.vconv6 = nn.Conv2d(1,16,(32,3),padding=(0,1))
         self.convMP = nn.MaxPool1d(2)
-        self.fc = nn.Linear(15*64, 1)
+        self.fc = nn.Linear(14*64, 1)
         self.init_params()
 
     def init_params(self):
@@ -311,18 +313,48 @@ class DeepCNN(nn.Module):
         vfeat_1c = vfeat_1c.squeeze()#128x64x120
         vfeat_1d=self.vconv1d(vafeat.unsqueeze(1))
         vfeat_1d = vfeat_1d.squeeze()#128x64x120
+        #print("0000000000")
+        #print(vfeat_1a.size())
+        #print(vfeat_1b.size())
+        #print(vfeat_1c.size())
+        #print(vfeat_1d.size())
         vfeat=torch.cat((vfeat_1a,vfeat_1b,vfeat_1c,vfeat_1d),1)#128x256x120
         vfeat=torch.nn.functional.relu(vfeat)
+        #print("=-=-=-=-=-=--=-=-")
+        #print(vfeat.size())
         vfeat=self.vconv2(vfeat.unsqueeze(1)).squeeze()
+        #print("-------")
+        #print(vfeat.size())
         vfeat=self.convMP(vfeat)
+        #print("##########")
+        #print(vfeat.size())
+        
         vfeat=self.vconv3(vfeat.unsqueeze(1)).squeeze()
+        #print("********")
+        #print(vfeat.size())
         vfeat=self.convMP(vfeat)
+        #print("========")
+        #print(vfeat.size())
+        
+        
+        #vfeat=self.vconv5(vfeat.unsqueeze(1)).squeeze()
+        
+        
         vfeat = self.vconv4(vfeat.unsqueeze(1)).squeeze()
 
         vfeat = self.convMP(vfeat)
+
+        #vfeat = self.vconv5(vfeat.unsqueeze(1)).squeeze()
+
+        #vfeat = self.convMP(vfeat)
+        #vfeat = self.vconv6(vfeat.unsqueeze(1)).squeeze()
+        #print("&*&*&*&*&*&*&")
+        #print(vfeat.size())
+        #vfeat = self.convMP(vfeat)
+        
         vfeat = vfeat.view(vfeat.size(0),-1)
         vfeat = self.fc(vfeat)
-        print(vfeat)
+        #print(vfeat)
         #vfeat = torch.nn.functional.sigmoid(vfeat)
 
         return vfeat
@@ -480,6 +512,7 @@ class MyCrossEntropyLoss(torch.nn.Module):
 
     def forward(self,softmax,label):
         input=softmax.squeeze()
+        print(input.size())
         target=label
         max_val= (-input).clamp(min=0)
         loss = torch.mean(input - input * target + max_val + ((-max_val).exp() + (-input - max_val).exp()).log())

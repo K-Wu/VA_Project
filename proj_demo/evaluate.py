@@ -26,8 +26,9 @@ parser.add_option('--config',
 (opts, args) = parser.parse_args()
 assert isinstance(opts, object)
 opt = Config(opts.config)
-print(opt)
 
+print(opt)
+#accuracy = [];
 if opt.checkpoint_folder is None:
     opt.checkpoint_folder = 'checkpoints'
 
@@ -77,7 +78,7 @@ def test(video_loader, audio_loader, model, opt):
                     afeat_var = afeat_var.cuda()
 
                 cur_sim = model(vfeat_var, afeat_var)
-                print(cur_sim)
+                #print(cur_sim)
                 if k == 0:
                     simmat = cur_sim.clone()
                 else:
@@ -89,16 +90,19 @@ def test(video_loader, audio_loader, model, opt):
                 order = topk[:,k]
                 if k in order:
                     right = right + 1
-            print('The similarity matrix: \n {}'.format(simmat))
+            #print('The similarity matrix: \n {}'.format(simmat))
             print('Testing accuracy (top{}): {:.3f}'.format(opt.topk, right/bz))
+            #accuracy.append(right/bz)
 
 def main():
     global opt
-    # test data loader
+ 
+    #for i in range(30):
+         # test data loader
     test_video_loader = torch.utils.data.DataLoader(test_video_dataset, batch_size=opt.batchSize,
-                                     shuffle=False, num_workers=int(opt.workers))
+                                 shuffle=False, num_workers=int(opt.workers))
     test_audio_loader = torch.utils.data.DataLoader(test_audio_dataset, batch_size=opt.batchSize,
-                                     shuffle=False, num_workers=int(opt.workers))
+                                 shuffle=False, num_workers=int(opt.workers))
 
     # create model
     model = models.DeepCNN()
@@ -108,11 +112,12 @@ def main():
         model.load_state_dict(torch.load(opt.init_model))
 
     if opt.cuda:
-        print('shift model to GPU .. ')
-        model = model.cuda()
-
+      print('shift model to GPU .. ')
+      model = model.cuda()
+    #opt.init_model = './checkpoints/LSTM_ATTENTION_state_epoch'+ str((i+1)*10)+'.pth'
+    print(opt.init_model)
     test(test_video_loader, test_audio_loader, model, opt)
-
-
+    #print('--------------------')
+    #print(accuracy)
 if __name__ == '__main__':
     main()
